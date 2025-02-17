@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { throttle } from 'throttle-debounce';
   import type { DrawingMode, Transform } from '@annotorious/annotorious';
-  import { getImageData, getKeypoints } from '../../util';
-  import type { KeypointIndex, Point } from '../../types';
+  import { getKeypoints } from '@/util';
+  import type { KeypointIndex, Point } from '@/types';
 
   /** Props **/
   export let addEventListener: (type: string, fn: EventListener, capture?: boolean) => void;
@@ -11,10 +12,26 @@
   export let transform: Transform;
 
   let container: SVGGElement;
+  let context: CanvasRenderingContext2D | null;
+
   let keypoints: KeypointIndex;
   let snapped: Point;
 
+  const updateKeypoints = throttle(500, (evt: PointerEvent) => {
+    if (!context) return;
+
+    const { width, height } = context.canvas;
+    
+    const data = context.getImageData(0, 0, width, height);
+    getKeypoints(data).then(kp => { 
+      console.log(kp);
+      keypoints = kp
+    });
+  });
+
   const onPointerMove = (evt: Event) => {
+    updateKeypoints(evt as PointerEvent);
+
     if (!keypoints) return;
 
     const { offsetX, offsetY } = evt as PointerEvent;
@@ -27,11 +44,9 @@
     const svg = container.closest('.a9s-annotationlayer');
     const siblings = Array.from(svg?.parentElement?.children || []);
 
-    const image = siblings.find(n => n.nodeName.toUpperCase() === 'IMG') as HTMLImageElement;
-    const data = getImageData(image);
-
-    getKeypoints(data).then(kp => keypoints = kp);
-
+    const canvas = siblings.find(n => n.nodeName.toUpperCase() === 'CANVAS') as HTMLCanvasElement;
+    context = canvas.getContext('2d');
+    
     addEventListener('pointermove', onPointerMove);
   });
 </script>

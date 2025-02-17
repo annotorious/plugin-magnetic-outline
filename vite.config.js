@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import path from 'path';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { sveltePreprocess } from 'svelte-preprocess';
 import dts from 'vite-plugin-dts';
@@ -12,6 +13,11 @@ export default defineConfig({
       entryRoot: './src'
     })
   ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  },
   server: {
     open: '/test/index.html'
   },

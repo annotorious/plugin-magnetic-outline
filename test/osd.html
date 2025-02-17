@@ -33,6 +33,7 @@
     <script type="module">
       import OpenSeadragon from 'openseadragon';
       import { createOSDAnnotator } from '@annotorious/openseadragon';
+      import { mountPlugin as mountSmartToolsPlugin } from '../src';
 
       import '@annotorious/openseadragon/annotorious-openseadragon.css';
 
@@ -55,13 +56,12 @@
         });
 
         var anno = createOSDAnnotator(viewer, {
-          drawingEnabled: false,
+          drawingEnabled: true,
           drawingMode: 'click'
         });
 
-        // Mount selector pack extension
-        // mountToolsPlugin(anno);
-        // anno.setDrawingTool('ellipse');
+        mountSmartToolsPlugin(anno);
+        anno.setDrawingTool('smart-polyline');
       }
     </script>
   </body>
