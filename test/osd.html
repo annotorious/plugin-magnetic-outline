@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <title>Annotorious Smart Tools | OpenSeadragon</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+      }
+
+      #openseadragon {
+        background-color: #f2f2f2;
+        width: 800px;
+        height: 600px;
+      }
+
+      .openseadragon-canvas {
+        outline: none;
+      }
+
+      .buttons {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="openseadragon"></div>
+
+    <script type="module">
+      import OpenSeadragon from 'openseadragon';
+      import { createOSDAnnotator } from '@annotorious/openseadragon';
+
+      import '@annotorious/openseadragon/annotorious-openseadragon.css';
+
+      window.onload = function() {
+        var viewer = OpenSeadragon({
+          id: 'openseadragon',
+          prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@3.1/build/openseadragon/images/', 
+          crossOriginPolicy: 'Anonymous',
+          showRotationControl: true,
+          gestureSettingsMouse: {
+            clickToZoom: false
+          },
+          gestureSettingsTouch: {
+            pinchRotate: true
+          },
+          tileSources: [{
+            type: 'image',
+            url: '640px-Hallstatt.jpg'
+          }]        
+        });
+
+        var anno = createOSDAnnotator(viewer, {
+          drawingEnabled: false,
+          drawingMode: 'click'
+        });
+
+        // Mount selector pack extension
+        // mountToolsPlugin(anno);
+        // anno.setDrawingTool('ellipse');
+      }
+    </script>
+  </body>
+</html>
