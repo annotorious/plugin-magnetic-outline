@@ -1,0 +1,49 @@
+{
+  "name": "@annotorious/plugin-smart-tools",
+  "version": "0.1.0",
+  "description": "Computer-vision-powered drawing tools for Annotorious",
+  "author": "Rainer Simon",
+  "license": "BSD-3-Clause",
+  "homepage": "https://annotorious.dev",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/annotorious/annotorious-plugin-smart-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/annotorious/annotorious-plugin-smart-tools/issues"
+  },
+  "scripts": {
+    "start": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "main": "./dist/annotorious-plugin-smart-tools.js",
+  "module": "./dist/annotorious-plugin-smart-tools.es.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/annotorious-plugin-smart-tools.es.js",
+      "require": "./dist/annotorious-plugin-smart-tools.js"
+    },
+    "./annotorious-plugin-smart-tools.css": "./dist/annotorious-plugin-smart-tools.css"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^3.1.2",
+    "@tsconfig/svelte": "^5.0.4",
+    "@types/node": "^22.7.4",
+    "openseadragon": "^5.0.0",
+    "svelte": "^4.2.19",
+    "svelte-preprocess": "^6.0.3",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8",
+    "vite-plugin-dts": "^4.2.2"
+  },
+  "peerDependencies": {
+    "@annotorious/openseadragon": "^3.0.9"
+  }
+}
