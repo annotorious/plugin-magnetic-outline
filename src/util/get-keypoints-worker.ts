@@ -1,12 +1,12 @@
 import cv from '@techstark/opencv-js';
+import type { Point } from '../types';
 
 self.onmessage = function(e: MessageEvent<ImageData>) {
   const { data } = e;
 
   lazy(() => {
     const keypoints = computeKeypoints(data);
-    const buffer: ArrayBuffer = new Uint16Array(keypoints).buffer;
-    self.postMessage(buffer);
+    self.postMessage(keypoints);
   });
 };
 
@@ -21,7 +21,6 @@ const lazy = (fn: Function) => new Promise(resolve => {
 
 const computeKeypoints = (data: ImageData) => {
   const mat = cv.matFromImageData(data);
-
   const kp = new cv.KeyPointVector();
 
   // @ts-ignore
@@ -29,15 +28,15 @@ const computeKeypoints = (data: ImageData) => {
   fast.setThreshold(20);
   fast.detect(mat, kp);
 
-  const arr: number[] = [];
+  // const arr: number[] = [];
+  const keypoints: Point[] = [];
 
   for (let i=0; i<kp.size(); i++) {
     const { x, y } = kp.get(i).pt;
-    arr.push(x);
-    arr.push(y);
+    keypoints.push({x, y});
   }
 
-  return arr;
+  return keypoints;
 }
 
 export {}; // Necessary for Vite to treat this as a module
