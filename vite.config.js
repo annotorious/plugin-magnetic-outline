@@ -19,7 +19,7 @@ export default defineConfig({
     sourcemap: true,
     lib: {
       entry: './src/index.ts',
-      name: 'AnnotoriousTools',
+      name: 'AnnotoriousSmartTools',
       formats: ['es', 'umd'],
       fileName: (format) => 
         format === 'umd' ? `annotorious-plugin-smart-tools.js` : `annotorious-plugin-smart-tools.es.js` 
