@@ -36,8 +36,8 @@
     "@sveltejs/vite-plugin-svelte": "^3.1.2",
     "@tsconfig/svelte": "^5.0.4",
     "@types/node": "^22.13.4",
+    "@types/openseadragon": "^3.0.10",
     "@types/throttle-debounce": "^5.0.2",
-    "openseadragon": "^5.0.1",
     "svelte": "^4.2.19",
     "svelte-preprocess": "^6.0.3",
     "typescript": "^5.7.3",
@@ -51,6 +51,7 @@
   "dependencies": {
     "@techstark/opencv-js": "^4.10.0-release.1",
     "flatbush": "^4.4.0",
+    "openseadragon": "^5.0.1",
     "throttle-debounce": "^5.0.2"
   }
 }
