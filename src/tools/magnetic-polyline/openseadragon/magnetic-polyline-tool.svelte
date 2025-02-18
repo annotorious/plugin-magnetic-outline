@@ -54,6 +54,18 @@
 <g 
   bind:this={container}
   class="a9s-annotation">
+  {#if Boolean(keypoints)}
+    {#each keypoints.listAll() as keypoint}
+      <circle 
+        stroke="black"
+        stroke-width={1}
+        fill="#fff"
+        cx={keypoint.x} 
+        cy={keypoint.y}
+        r={2} />
+    {/each}
+  {/if}
+  
   {#if Boolean(snapped)}
     <circle
       cx={snapped.x}

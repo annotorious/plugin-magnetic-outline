@@ -10,12 +10,14 @@ const createIndex = (points: Point[]) => {
   
   flatbush.finish();
 
+  const listAll = () => ([...points]);
+
   const neighbors = (x: number, y: number, maxResults?: number, maxDistance?: number) => {
     const idx = flatbush.neighbors(x, y, maxResults, maxDistance);
     return idx.map(i => points[i]);
   }
 
-  return { neighbors };
+  return { listAll, neighbors };
 }
 
 export const getKeypoints = (data: ImageData): Promise<KeypointIndex> => new Promise(resolve => {
