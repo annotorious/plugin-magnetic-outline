@@ -32,6 +32,8 @@
 
   const CLOSE_DISTANCE = 20;
 
+  $: cursorRadius = 3 / viewportScale;
+
   const updateKeypoints = throttle(500, () => {
     if (!context) return;
 
@@ -61,6 +63,11 @@
 
     canvasCursor = nearestKP.length > 0 ? nearestKP[0] : [offsetX * devicePixelRatio, offsetY * devicePixelRatio];
     imageCursor = transform.elementToImage(canvasCursor[0] / devicePixelRatio, canvasCursor[1] / devicePixelRatio);
+
+    if (points.length >  2) {
+      const d = distance(imageCursor, points[0]) * viewportScale;
+      isClosable = d < CLOSE_DISTANCE;
+    }
   }
 
   const onPointerUp = (event: Event) => {
@@ -134,12 +141,20 @@
       points={coords} />
   {/if}
 
-  {#if imageCursor}
+  {#if isClosable}
+    <rect 
+      class="a9s-handle"
+      x={points[0][0] - cursorRadius} 
+      y={points[0][1] - cursorRadius} 
+      height={cursorRadius * 3} 
+      width={cursorRadius * 3} />
+  {:else if imageCursor}
+
     <circle
       fill="#ff0000"
       cx={imageCursor[0]}
       cy={imageCursor[1]}
-      r={3 / viewportScale} />
+      r={cursorRadius} />
   {/if}
 </g>
 
@@ -149,6 +164,10 @@
     stroke: #fff;
     stroke-width: 0.75;
     vector-effect: non-scaling-stroke;
+  }
+
+  rect.a9s-handle {
+    cursor: url('/crosshair.svg') 16 16, auto;
   }
 
   :global(
