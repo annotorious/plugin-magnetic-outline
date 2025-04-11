@@ -6,8 +6,6 @@
   import { getKeypoints } from '@/util';
   import type { KeypointIndex, Point } from '@/types';
 
-  import crosshair from '../assets/crosshair.svg';
-
   const dispatch = createEventDispatcher<{ create: Polygon }>();
 
   /** Props **/
@@ -119,8 +117,6 @@
     const svg = container.closest('.a9s-annotationlayer') as SVGSVGElement;
     if (!svg) return;
 
-    svg.style.cursor =  `url('${crosshair}') 12 12, auto`;
-
     const siblings = Array.from(svg?.parentElement?.children || []);
 
     const canvas = siblings.find(n => n.nodeName.toUpperCase() === 'CANVAS') as HTMLCanvasElement;
@@ -173,13 +169,13 @@
   }
 
   rect.a9s-handle {
-    cursor: inherit;
+    cursor: url('/assets/crosshair.svg') 12 12, auto;
   }
 
   :global(
     .a9s-annotationlayer.a9s-osd-drawinglayer,
     .a9s-annotationlayer.a9s-osd-drawinglayer .a9s-annotation
   ) {
-    cursor: inherit;
+    cursor: url('/assets/crosshair.svg') 12 12, auto;
   }
 </style>

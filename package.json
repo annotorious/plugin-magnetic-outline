@@ -27,8 +27,8 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/plugin-magnetic-polyline.es.js",
-      "require": "./dist/plugin-magnetic-polyline.js"
+      "import": "./dist/plugin-smart-tools.js",
+      "require": "./dist/plugin-smart-tools.umd.cjs"
     },
     "./plugin-magnetic-polyline.css": "./dist/style.css"
   },

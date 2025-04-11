@@ -26,12 +26,7 @@ export default defineConfig({
     lib: {
       entry: './src/index.ts',
       name: 'MagneticOutline',
-      formats: ['es', 'umd'],
-      fileName: (format) => 
-        format === 'umd' ? `plugin-magnetic-polyline.js` : `plugin-magnetic-polyline.es.js` 
-    },
-    rollupOptions: {
-
+      formats: ['es', 'umd']
     }
   }
 });
