@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import OpenSeadragon from 'openseadragon';
   import { throttle } from 'throttle-debounce';
   import type { DrawingMode, Transform } from '@annotorious/annotorious';
   import { getKeypoints, getViewer } from '@/util';
   import type { KeypointIndex, Point } from '@/types';
-    import OpenSeadragon from 'openseadragon';
 
   const viewer = getViewer();
 
@@ -34,7 +34,7 @@
   const mapSnapped = (snapped: Point) => {
     if (!snapped) return;
 
-    const { x, y } = snapped;
+    const [x, y] = snapped;
     return viewer.viewport.viewerElementToImageCoordinates(new OpenSeadragon.Point(x / 2, y / 2));
   }
 
@@ -48,7 +48,7 @@
     const { offsetX, offsetY } = evt as PointerEvent; 
     const nearestKP = keypoints.neighbors(offsetX * 2, offsetY * 2, 1, 20);
 
-    snapped = nearestKP.length > 0 ? nearestKP[0] : { x: offsetX * 2, y: offsetY * 2};
+    snapped = nearestKP.length > 0 ? nearestKP[0] : [offsetX * 2, offsetY * 2];
   }
 
   onMount(() => {
