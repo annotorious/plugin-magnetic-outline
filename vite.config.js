@@ -25,15 +25,13 @@ export default defineConfig({
     sourcemap: true,
     lib: {
       entry: './src/index.ts',
-      name: 'AnnotoriousSmartTools',
+      name: 'MagneticOutline',
       formats: ['es', 'umd'],
       fileName: (format) => 
         format === 'umd' ? `plugin-magnetic-polyline.js` : `plugin-magnetic-polyline.es.js` 
     },
     rollupOptions: {
-      output: {
-        assetFileNames: 'plugin-magnetic-polyline.[ext]'
-      }
+
     }
   }
 });
