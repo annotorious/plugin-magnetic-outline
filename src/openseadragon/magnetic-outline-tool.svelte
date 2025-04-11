@@ -1,28 +1,38 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import OpenSeadragon from 'openseadragon';
+  import { createEventDispatcher, onMount } from 'svelte';
   import { throttle } from 'throttle-debounce';
-  import type { DrawingMode, Transform } from '@annotorious/annotorious';
+  import { boundsFromPoints, distance, ShapeType } from '@annotorious/annotorious';
+  import type { DrawingMode, Polygon, Transform } from '@annotorious/annotorious';
   import { getKeypoints, getViewer } from '@/util';
   import type { KeypointIndex, Point } from '@/types';
 
-  const viewer = getViewer();
+  const dispatch = createEventDispatcher<{ create: Polygon }>();
 
   /** Props **/
   export let addEventListener: (type: string, fn: EventListener, capture?: boolean) => void;
   export let viewportScale: number;
   // svelte-ignore unused-export-let
   export let drawingMode: DrawingMode;
-  // svelte-ignore unused-export-let
   export let transform: Transform;
 
   let container: SVGGElement;
   let context: CanvasRenderingContext2D | null;
 
   let keypoints: KeypointIndex;
-  let snapped: Point;
 
-  const updateKeypoints = throttle(500, (evt: PointerEvent) => {
+  // Note: keypoints are viewport coordinate space (multiplied
+  // by devicePixelRatio), everything else is image coordinate space.
+  let canvasCursor: Point | undefined;
+  let imageCursor: Point | undefined;
+
+  let lastPointerDown: { timeStamp: number, offsetX: number, offsetY: number };
+
+  let points: Point[] = [];
+  let isClosable: boolean = false;
+
+  const CLOSE_DISTANCE = 20;
+
+  const updateKeypoints = throttle(500, () => {
     if (!context) return;
 
     // Canvas size is set by OpenSeadragon and will be 2x physical size
@@ -33,24 +43,67 @@
     getKeypoints(data).then(kp => keypoints = kp);
   });
 
-  const mapSnapped = (snapped: Point) => {
-    if (!snapped) return;
+  const onPointerDown = (event: Event) => {
+    const evt = event as PointerEvent;
 
-    const [x, y] = snapped;
-    return viewer.viewport.viewerElementToImageCoordinates(new OpenSeadragon.Point(x / 2, y / 2));
+    // Note that the event itself is ephemeral!
+    const { timeStamp, offsetX, offsetY } = evt;
+    lastPointerDown = { timeStamp, offsetX, offsetY };
   }
 
-  $: mappedSnapped = mapSnapped(snapped);
-
   const onPointerMove = (evt: Event) => {
-    updateKeypoints(evt as PointerEvent);
+    updateKeypoints();
 
     if (!keypoints) return;
 
     const { offsetX, offsetY } = evt as PointerEvent; 
-    const nearestKP = keypoints.neighbors(offsetX * 2, offsetY * 2, 1, 20);
+    const nearestKP = keypoints.neighbors(offsetX * devicePixelRatio, offsetY * devicePixelRatio, 1, 20);
 
-    snapped = nearestKP.length > 0 ? nearestKP[0] : [offsetX * 2, offsetY * 2];
+    canvasCursor = nearestKP.length > 0 ? nearestKP[0] : [offsetX * devicePixelRatio, offsetY * devicePixelRatio];
+    imageCursor = transform.elementToImage(canvasCursor[0] / devicePixelRatio, canvasCursor[1] / devicePixelRatio);
+  }
+
+  const onPointerUp = (event: Event) => {
+    const evt = event as PointerEvent;
+    const { offsetX, offsetY } = evt;
+    const timeDifference = evt.timeStamp - lastPointerDown.timeStamp;
+
+    const d = distance(
+      [lastPointerDown.offsetX, lastPointerDown.offsetY], 
+      [evt.offsetX, evt.offsetY]);
+
+    if (timeDifference > 300 || d > 15) // Not a single click - ignore
+      return;
+
+    if (isClosable) {
+      stopDrawing();
+    } else if (points.length === 0) {
+      // Start drawing
+      const point = transform.elementToImage(evt.offsetX, evt.offsetY);
+      points.push(point);
+
+      canvasCursor = [offsetX * devicePixelRatio, offsetY * devicePixelRatio];
+      imageCursor = transform.elementToImage(offsetX, offsetY);
+    } else if (imageCursor) {
+      points.push(imageCursor);
+    }
+  }
+
+  const stopDrawing = () => {
+    const shape: Polygon = {
+      type: ShapeType.POLYGON, 
+      geometry: {
+        bounds: boundsFromPoints(points),
+        points: [...points]
+      }
+    }
+
+    points = [];
+
+    canvasCursor = undefined;
+    imageCursor = undefined;
+
+    dispatch('create', shape);
   }
 
   onMount(() => {
@@ -60,18 +113,32 @@
     const canvas = siblings.find(n => n.nodeName.toUpperCase() === 'CANVAS') as HTMLCanvasElement;
     context = canvas.getContext('2d');
     
+    addEventListener('pointerdown', onPointerDown);
     addEventListener('pointermove', onPointerMove);
+    addEventListener('pointerup', onPointerUp);
   });
 </script>
 
 <g 
   bind:this={container}
   class="a9s-annotation">
-  {#if mappedSnapped}
+
+  {#if (points.length > 0 && imageCursor)}
+    {@const coords = (isClosable ? points : [...points, imageCursor]).map(xy => xy.join(',')).join(' ')}
+    <polygon 
+      class="a9s-outer"
+      points={coords} />
+
+    <polygon 
+      class="a9s-inner"
+      points={coords} />
+  {/if}
+
+  {#if imageCursor}
     <circle
       fill="#ff0000"
-      cx={mappedSnapped.x}
-      cy={mappedSnapped.y}
+      cx={imageCursor[0]}
+      cy={imageCursor[1]}
       r={3 / viewportScale} />
   {/if}
 </g>
@@ -81,6 +148,7 @@
     fill: #000;
     stroke: #fff;
     stroke-width: 0.75;
+    vector-effect: non-scaling-stroke;
   }
 
   :global(
