@@ -180,6 +180,6 @@
     .a9s-annotationlayer.a9s-osd-drawinglayer,
     .a9s-annotationlayer.a9s-osd-drawinglayer .a9s-annotation
   ) {
-    cursor: url('/crosshair.svg') 16 16, auto;
+    cursor: inherit;
   }
 </style>
