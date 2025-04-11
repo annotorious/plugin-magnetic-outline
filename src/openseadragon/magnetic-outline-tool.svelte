@@ -11,7 +11,9 @@
   /** Props **/
   export let addEventListener: (type: string, fn: EventListener, capture?: boolean) => void;
   export let viewportScale: number;
+  // svelte-ignore unused-export-let
   export let drawingMode: DrawingMode;
+  // svelte-ignore unused-export-let
   export let transform: Transform;
 
   let container: SVGGElement;
@@ -70,16 +72,21 @@
       fill="#ff0000"
       cx={mappedSnapped.x}
       cy={mappedSnapped.y}
-      r={2 / viewportScale} />
+      r={3 / viewportScale} />
   {/if}
 </g>
 
 <style>
-  :global(.a9s-annotationlayer.a9s-osd-drawinglayer.drawing) {
-    cursor: none;
+  circle {
+    fill: #000;
+    stroke: #fff;
+    stroke-width: 0.75;
   }
 
-  circle {
-    cursor: none;
+  :global(
+    .a9s-annotationlayer.a9s-osd-drawinglayer,
+    .a9s-annotationlayer.a9s-osd-drawinglayer .a9s-annotation
+  ) {
+    cursor: url('/crosshair.svg') 16 16, auto;
   }
 </style>
