@@ -28,11 +28,11 @@ export default defineConfig({
       name: 'AnnotoriousSmartTools',
       formats: ['es', 'umd'],
       fileName: (format) => 
-        format === 'umd' ? `annotorious-plugin-smart-tools.js` : `annotorious-plugin-smart-tools.es.js` 
+        format === 'umd' ? `plugin-magnetic-polyline.js` : `plugin-magnetic-polyline.es.js` 
     },
     rollupOptions: {
       output: {
-        assetFileNames: 'annotorious-plugin-smart-tools.[ext]'
+        assetFileNames: 'plugin-magnetic-polyline.[ext]'
       }
     }
   }

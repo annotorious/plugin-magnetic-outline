@@ -3,7 +3,7 @@
   import { throttle } from 'throttle-debounce';
   import { boundsFromPoints, distance, ShapeType } from '@annotorious/annotorious';
   import type { DrawingMode, Polygon, Transform } from '@annotorious/annotorious';
-  import { getKeypoints, getViewer } from '@/util';
+  import { getKeypoints } from '@/util';
   import type { KeypointIndex, Point } from '@/types';
 
   const dispatch = createEventDispatcher<{ create: Polygon }>();
@@ -53,7 +53,7 @@
     lastPointerDown = { timeStamp, offsetX, offsetY };
   }
 
-  const onPointerMove = (evt: Event) => {
+  const onPointerMove = (evt: Event) => {    
     updateKeypoints();
 
     if (!keypoints) return;
