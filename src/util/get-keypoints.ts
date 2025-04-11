@@ -6,7 +6,7 @@ const createIndex = (points: Point[]) => {
   const flatbush = new Flatbush(points.length);
 
   for (const p of points)
-    flatbush.add(p.x, p.y, p.x, p.y);
+    flatbush.add(p[0], p[1], p[0], p[1]);
   
   flatbush.finish();
 

@@ -42,7 +42,7 @@ const computeKeypoints = (data: ImageData) => {
   for (let i = 0; i < corners.rows; i++) {
     const x = corners.data32F[i * 2];
     const y = corners.data32F[i * 2 + 1];
-    keypoints.push({ x, y });
+    keypoints.push([x, y]);
   }
 
   return keypoints;
