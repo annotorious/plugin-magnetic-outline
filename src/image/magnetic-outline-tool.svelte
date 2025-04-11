@@ -12,7 +12,9 @@
 
   let container: SVGGElement;
   let keypoints: KeypointIndex;
-  let snapped: Point;
+
+  let cursor: Point;
+  let isSnapped = false;
 
   const onPointerMove = (evt: Event) => {
     if (!keypoints) return;
@@ -20,10 +22,16 @@
     const { offsetX, offsetY } = evt as PointerEvent;
     const nearestKP = keypoints.neighbors(offsetX, offsetY, 1, 20);
 
-    snapped = nearestKP.length > 0 ? nearestKP[0] : { x: offsetX, y: offsetY };
+    if (nearestKP.length > 0) {
+      cursor = nearestKP[0];
+      isSnapped = true;
+    } else {
+      cursor = { x: offsetX, y: offsetY };
+      isSnapped = false;
+    }
   }
 
-  onMount(() => {    
+  onMount(() => {
     const svg = container.closest('.a9s-annotationlayer');
     const siblings = Array.from(svg?.parentElement?.children || []);
 
@@ -37,25 +45,40 @@
   });
 </script>
 
-<g 
-  bind:this={container}
-  class="a9s-annotation">
-  {#if Boolean(keypoints)}
-    {#each keypoints.listAll() as keypoint}
-      <circle 
-        stroke="black"
-        stroke-width={1}
-        fill="#fff"
-        cx={keypoint.x} 
-        cy={keypoint.y}
-        r={2} />
-    {/each}
-  {/if}
+<g bind:this={container}>
+  <!-- 
+  <g class="debug">
+    {#if Boolean(keypoints)}
+      {#each keypoints.listAll() as keypoint}
+        <circle 
+          stroke="black"
+          stroke-width={1}
+          fill="#fff"
+          cx={keypoint.x} 
+          cy={keypoint.y}
+          r={2} />
+      {/each}
+    {/if}
+  </g>
+  -->
 
-  {#if Boolean(snapped)}
+  {#if Boolean(cursor)}
     <circle
-      cx={snapped.x}
-      cy={snapped.y}
-      r={2} />
+      cx={cursor.x}
+      cy={cursor.y}
+      class:snapped={isSnapped}
+      r={3} />
   {/if}
 </g>
+
+<style>
+  circle {
+    fill: #000;
+    stroke: #fff;
+    stroke-width: 0.75;
+  }
+
+  :global(.a9s-annotationlayer) {
+    cursor: url('/crosshair.svg') 16 16, auto;
+  }
+</style>

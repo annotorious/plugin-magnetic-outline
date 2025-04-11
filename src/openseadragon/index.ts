@@ -1,2 +1,2 @@
-export { default as MagneticPolylineEditor } from './magnetic-polyline-editor.svelte';
-export { default as MagneticPolylineTool } from './magnetic-polyline-tool.svelte';
+export { default as MagneticOutlineEditor } from './magnetic-outline-editor.svelte';
+export { default as MagneticOutlineTool } from './magnetic-outline-tool.svelte';

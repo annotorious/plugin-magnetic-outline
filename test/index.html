@@ -32,13 +32,13 @@
 
     <script type="module">
       import { createImageAnnotator } from '@annotorious/annotorious';
-      import { mountPlugin as mountSmartToolsPlugin } from '../src';
+      import { mountPlugin as mountMagneticOutline } from '../src';
 
       import '@annotorious/annotorious/annotorious.css';
 
       window.onload = function() {
         var anno = createImageAnnotator('sample-image');
-        mountSmartToolsPlugin(anno);
+        mountMagneticOutline(anno);
 
         anno.on('createAnnotation', function (annotation) {
           console.log('created', annotation);
@@ -52,7 +52,7 @@
           console.log('deleted', annotation);
         });
 
-        anno.setDrawingTool('smart-polyline');
+        anno.setDrawingTool('magnetic-outline');
       }
     </script>
   </body>

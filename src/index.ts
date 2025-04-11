@@ -1,8 +1,8 @@
 import type { SvelteComponent } from 'svelte';
 import type { ImageAnnotator } from '@annotorious/annotorious';
 import type { OpenSeadragonAnnotator } from '@annotorious/openseadragon';
-import { MagneticPolylineTool as ImagePolylineTool } from '@/image';
-import { MagneticPolylineTool as OSDPolylineTool } from '@/openseadragon';
+import { MagneticOutlineTool as ImageOutlineTool } from '@/image';
+import { MagneticOutlineTool as OSDOutlineTool } from '@/openseadragon';
 import { setViewer } from './util';
 
 export const mountPlugin = (
@@ -12,9 +12,9 @@ export const mountPlugin = (
     setViewer(anno.viewer);
     
     // Register OpenSeadragon version
-    anno.registerDrawingTool('smart-polyline', OSDPolylineTool as typeof SvelteComponent);
+    anno.registerDrawingTool('magnetic-outline', OSDOutlineTool as typeof SvelteComponent);
   } else {
     // Register Image version
-    anno.registerDrawingTool('smart-polyline', ImagePolylineTool as typeof SvelteComponent);
+    anno.registerDrawingTool('magnetic-outline', ImageOutlineTool as typeof SvelteComponent);
   }
 }
