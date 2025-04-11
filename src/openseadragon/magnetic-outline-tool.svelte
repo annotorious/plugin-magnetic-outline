@@ -117,6 +117,8 @@
     const svg = container.closest('.a9s-annotationlayer') as SVGSVGElement;
     if (!svg) return;
 
+    svg.classList.add('magnetic-outline');
+
     const siblings = Array.from(svg?.parentElement?.children || []);
 
     const canvas = siblings.find(n => n.nodeName.toUpperCase() === 'CANVAS') as HTMLCanvasElement;
@@ -125,6 +127,10 @@
     addEventListener('pointerdown', onPointerDown);
     addEventListener('pointermove', onPointerMove);
     addEventListener('pointerup', onPointerUp);
+
+    return () => {
+      svg.classList.remove('magnetic-outline');
+    }
   });
 </script>
 
@@ -151,7 +157,6 @@
       height={cursorRadius * 3} 
       width={cursorRadius * 3} />
   {:else if imageCursor}
-
     <circle
       cx={imageCursor[0]}
       cy={imageCursor[1]}
