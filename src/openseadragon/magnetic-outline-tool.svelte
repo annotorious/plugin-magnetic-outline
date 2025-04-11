@@ -153,7 +153,6 @@
   {:else if imageCursor}
 
     <circle
-      fill="#ff0000"
       cx={imageCursor[0]}
       cy={imageCursor[1]}
       r={cursorRadius} />
