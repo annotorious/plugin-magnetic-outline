@@ -38,6 +38,7 @@
 
       window.onload = function() {
         var anno = createImageAnnotator('sample-image');
+        mountSmartToolsPlugin(anno);
 
         anno.on('createAnnotation', function (annotation) {
           console.log('created', annotation);
@@ -51,7 +52,6 @@
           console.log('deleted', annotation);
         });
 
-        mountSmartToolsPlugin(anno);
         anno.setDrawingTool('smart-polyline');
       }
     </script>

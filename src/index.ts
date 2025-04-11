@@ -1,8 +1,8 @@
 import type { SvelteComponent } from 'svelte';
 import type { ImageAnnotator } from '@annotorious/annotorious';
 import type { OpenSeadragonAnnotator } from '@annotorious/openseadragon';
-import { MagneticPolylineTool as ImagePolylineTool } from '@/tools/magnetic-polyline/image';
-import { MagneticPolylineTool as OSDPolylineTool } from '@/tools/magnetic-polyline/openseadragon';
+import { MagneticPolylineTool as ImagePolylineTool } from '@/image';
+import { MagneticPolylineTool as OSDPolylineTool } from '@/openseadragon';
 import { setViewer } from './util';
 
 export const mountPlugin = (
