@@ -6,7 +6,7 @@
   import { boundsFromPoints, distance, ShapeType } from '@annotorious/annotorious';
   import type { DrawingMode, Polygon, Transform } from '@annotorious/annotorious';
   import type { Point } from '@/types';
-  import { getViewer } from '@/util';
+  import { getViewer, lazy } from '@/util';
 
   const dispatch = createEventDispatcher<{ create: Polygon }>();
 
@@ -157,20 +157,8 @@
 
     const siblings = Array.from(svg?.parentElement?.children || []);
     canvas = siblings.find(n => n.nodeName.toUpperCase() === 'CANVAS') as HTMLCanvasElement;
-    
-    const lazy = (fn: Function) => new Promise(resolve => {
-      const isLoaded = !!cv?.Mat;
 
-      if (isLoaded)
-        resolve(fn());
-      else
-        cv.onRuntimeInitialized = () => resolve(fn());
-    });
-
-    lazy(() => {
-      console.log('init tool');
-      initScissors();
-    });
+    lazy(() => initScissors());
 
     addEventListener('pointerdown', onPointerDown);
     addEventListener('pointermove', onPointerMove);

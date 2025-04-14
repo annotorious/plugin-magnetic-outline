@@ -3,10 +3,12 @@
   import { debounce } from 'throttle-debounce';
   import { boundsFromPoints, distance, ShapeType } from '@annotorious/annotorious';
   import type { DrawingMode, Polygon, Transform } from '@annotorious/annotorious';
-  import { getKeypoints } from '@/util';
+  import { getKeypoints, getViewer, lazy } from '@/util';
   import type { KeypointIndex, Point } from '@/types';
 
   const dispatch = createEventDispatcher<{ create: Polygon }>();
+
+  const viewer = getViewer();
 
   /** Props **/
   export let addEventListener: (type: string, fn: EventListener, capture?: boolean) => void;
@@ -18,7 +20,7 @@
   let container: SVGGElement;
   let context: CanvasRenderingContext2D | null;
 
-  let keypoints: KeypointIndex;
+  let keypoints: KeypointIndex | undefined;
 
   // Note: keypoints are viewport coordinate space (multiplied
   // by devicePixelRatio), everything else is image coordinate space.
@@ -34,7 +36,7 @@
 
   $: cursorRadius = 3 / viewportScale;
 
-  const updateKeypoints = debounce(50, () => {
+  const updateKeypoints = () => {
     if (!context) return;
 
     // Canvas size is set by OpenSeadragon and will be 2x physical size
@@ -43,7 +45,16 @@
     // Keypoints will be in the Canvas's coordinate space
     const data = context.getImageData(0, 0, width, height);
     getKeypoints(data).then(kp => keypoints = kp);
+  }
+
+  const onUpdateViewport = debounce(50, () => {
+    updateKeypoints();
   });
+
+  const onAnimationStart = () => {
+    // Invalidate keypoints
+    keypoints = undefined;
+  }
 
   const onPointerDown = (event: Event) => {
     const evt = event as PointerEvent;
@@ -54,8 +65,6 @@
   }
 
   const onPointerMove = (evt: Event) => {    
-    updateKeypoints();
-
     if (!keypoints) return;
 
     const { offsetX, offsetY } = evt as PointerEvent; 
@@ -123,13 +132,21 @@
 
     const canvas = siblings.find(n => n.nodeName.toUpperCase() === 'CANVAS') as HTMLCanvasElement;
     context = canvas.getContext('2d');
+
+    lazy(() => updateKeypoints());
   
     addEventListener('pointerdown', onPointerDown);
     addEventListener('pointermove', onPointerMove);
     addEventListener('pointerup', onPointerUp);
 
+    viewer.addHandler('animation-start', onAnimationStart);
+    viewer.addHandler('update-viewport', onUpdateViewport);
+
     return () => {
       svg.classList.remove('magnetic-cursor');
+
+      viewer.removeHandler('animation-start', onAnimationStart);
+      viewer.removeHandler('update-viewport', onUpdateViewport);
     }
   });
 </script>
