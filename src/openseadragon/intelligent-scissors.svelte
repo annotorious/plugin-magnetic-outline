@@ -52,6 +52,12 @@
     tool.applyImage(src);
   });
 
+  const onAnimationStart = () => {
+    // Invalidate image data and tool
+    src = undefined;
+    tool = undefined;
+  }
+
   const onPointerDown = (event: Event) => {
     const evt = event as PointerEvent;
 
@@ -156,16 +162,22 @@
       tool = new cv.segmentation_IntelligentScissorsMB();
       tool.setEdgeFeatureCannyParameters(32, 100);
       tool.setGradientMagnitudeMaxLimit(200);
+
+      src = cv.imread(canvas);
     });
 
     addEventListener('pointerdown', onPointerDown);
     addEventListener('pointermove', onPointerMove);
     addEventListener('pointerup', onPointerUp);
-   
+
+    viewer.addHandler('animation-start', onAnimationStart);
     viewer.addHandler('update-viewport', onUpdateViewport);
 
     return () => {
       svg.classList.remove('intelligent-scissors');
+
+      viewer.removeHandler('animation-start', onAnimationStart);
+      viewer.removeHandler('update-viewport', onUpdateViewport);
     }
   });
 </script>
