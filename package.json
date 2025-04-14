@@ -18,8 +18,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
-  "main": "./dist/plugin-magnetic-outline.js",
-  "module": "./dist/plugin-magnetic-outline.es.js",
+  "main": "./dist/plugin-magnetic-outline.umd.cjs",
+  "module": "./dist/plugin-magnetic-outline.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
@@ -27,8 +27,8 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/plugin-smart-tools.js",
-      "require": "./dist/plugin-smart-tools.umd.cjs"
+      "import": "./dist/plugin-magnetic-outline.js",
+      "require": "./dist/plugin-magnetic-outline.umd.cjs"
     },
     "./plugin-magnetic-polyline.css": "./dist/style.css"
   },
