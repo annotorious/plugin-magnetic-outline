@@ -101,6 +101,10 @@
 
   onMount(() => {
     const svg = container.closest('.a9s-annotationlayer');
+    if (!svg) return;
+
+    svg.classList.add('magnetic-cursor');
+
     const siblings = Array.from(svg?.parentElement?.children || []);
 
     const image = siblings.find(n => n.nodeName.toUpperCase() === 'IMG') as HTMLImageElement;
@@ -155,7 +159,10 @@
     stroke: #000;
   }
 
-  :global(.a9s-annotationlayer) {
-    cursor: url('/assets/crosshair.svg') 16 16, auto;
+  :global(
+    .a9s-annotationlayer.a9s-osd-drawinglayer,
+    .a9s-annotationlayer.a9s-osd-drawinglayer .a9s-annotation
+  ) {
+    cursor: url('/assets/crosshair.svg') 12 12, auto;
   }
 </style>

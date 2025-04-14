@@ -96,6 +96,10 @@
 
   onMount(() => {
     const svg = container.closest('.a9s-annotationlayer');
+    if (!svg) return;
+
+    svg.classList.add('intelligent-scissors');
+
     const siblings = Array.from(svg?.parentElement?.children || []);
 
     const image = siblings.find(n => n.nodeName.toUpperCase() === 'IMG') as HTMLImageElement;
