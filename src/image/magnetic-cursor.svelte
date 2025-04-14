@@ -116,6 +116,10 @@
     addEventListener('pointerdown', onPointerDown);
     addEventListener('pointermove', onPointerMove);
     addEventListener('pointerup', onPointerUp);
+
+    return () => {
+      svg.classList.remove('magnetic-cursor');
+    }
   });
 </script>
 
@@ -160,8 +164,8 @@
   }
 
   :global(
-    .a9s-annotationlayer.a9s-osd-drawinglayer,
-    .a9s-annotationlayer.a9s-osd-drawinglayer .a9s-annotation
+    .a9s-annotationlayer.a9s-osd-drawinglayer.magnetic-cursor,
+    .a9s-annotationlayer.a9s-osd-drawinglayer.magnetic-cursor .a9s-annotation
   ) {
     cursor: url('/assets/crosshair.svg') 12 12, auto;
   }

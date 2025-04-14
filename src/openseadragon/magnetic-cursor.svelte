@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
-  import { throttle } from 'throttle-debounce';
+  import { debounce } from 'throttle-debounce';
   import { boundsFromPoints, distance, ShapeType } from '@annotorious/annotorious';
   import type { DrawingMode, Polygon, Transform } from '@annotorious/annotorious';
   import { getKeypoints } from '@/util';
@@ -34,7 +34,7 @@
 
   $: cursorRadius = 3 / viewportScale;
 
-  const updateKeypoints = throttle(500, () => {
+  const updateKeypoints = debounce(50, () => {
     if (!context) return;
 
     // Canvas size is set by OpenSeadragon and will be 2x physical size
@@ -117,7 +117,7 @@
     const svg = container.closest('.a9s-annotationlayer') as SVGSVGElement;
     if (!svg) return;
 
-    svg.classList.add('magnetic-outline');
+    svg.classList.add('magnetic-cursor');
 
     const siblings = Array.from(svg?.parentElement?.children || []);
 
@@ -129,7 +129,7 @@
     addEventListener('pointerup', onPointerUp);
 
     return () => {
-      svg.classList.remove('magnetic-outline');
+      svg.classList.remove('magnetic-cursor');
     }
   });
 </script>
@@ -177,8 +177,8 @@
   }
 
   :global(
-    .a9s-annotationlayer.a9s-osd-drawinglayer,
-    .a9s-annotationlayer.a9s-osd-drawinglayer .a9s-annotation
+    .a9s-annotationlayer.a9s-osd-drawinglayer.magnetic-cursor,
+    .a9s-annotationlayer.a9s-osd-drawinglayer.magnetic-cursor .a9s-annotation
   ) {
     cursor: url('/assets/crosshair.svg') 12 12, auto;
   }

@@ -1,57 +1,66 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" />
-    <title>Annotorious Smart Tools | Image</title>
+    <meta charset='utf-8' />
+    <title>Annotorious Magnetic Outline | OpenSeadragon</title>
     <style>
-      html, body {
-        background-color: #cfcfcf;
+      body {
         margin: 0;
-        padding: 0;
+        padding: 20px;
       }
 
-      #content {
-        background-color: #fff;
-        box-sizing: border-box;
-        margin: 0 auto;
-        max-width: 900px;
-        min-height: 100vh;
-        padding: 30px;
-        position: relative;
-      }
-
-      #content img {
+      #openseadragon {
+        background-color: #f2f2f2;
         max-width: 100%;
+        width: 800px;
+        height: 600px;
+      }
+
+      .openseadragon-canvas {
+        outline: none;
+      }
+
+      .buttons {
+        position: absolute;
+        top: 20px;
+        right: 20px;
       }
     </style>
   </head>
+
   <body>
-    <div id="content">    
-      <img id="sample-image" src="640px-Hallstatt.jpg" />
-      <canvas id="canvasOutput"></canvas>
-    </div>
+    <div id="openseadragon"></div>
 
     <script type="module">
-      import { createImageAnnotator } from '@annotorious/annotorious';
-      import { mountPlugin as mountMagneticOutline } from '../src';
+      import OpenSeadragon from 'openseadragon';
+      import { createOSDAnnotator } from '@annotorious/openseadragon';
+      import { mountPlugin as mountSmartToolsPlugin } from '../src';
 
-      import '@annotorious/annotorious/annotorious.css';
+      import '@annotorious/openseadragon/annotorious-openseadragon.css';
 
       window.onload = function() {
-        var anno = createImageAnnotator('sample-image');
-        mountMagneticOutline(anno);
-
-        anno.on('createAnnotation', function (annotation) {
-          console.log('created', annotation);
+        var viewer = OpenSeadragon({
+          id: 'openseadragon',
+          prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@3.1/build/openseadragon/images/', 
+          crossOriginPolicy: 'Anonymous',
+          showRotationControl: true,
+          maxZoomLevel: 100,
+          gestureSettingsMouse: {
+            clickToZoom: false
+          },
+          gestureSettingsTouch: {
+            pinchRotate: true
+          },
+          tileSources: 'https://iiif.bodleian.ox.ac.uk/iiif/image/b5c11542-8550-4831-ad39-77f503721aec/info.json'  
+          // tileSources: 'https://lib.is/IE19255085/iiif/2/FL19255970/info.json'    
         });
 
-        anno.on('updateAnnotation', function(annotation, previous) {
-          console.log('updated', previous, 'with', annotation);
+        var anno = createOSDAnnotator(viewer, {
+          drawingEnabled: true,
+          drawingMode: 'click'
         });
 
-        anno.on('deleteAnnotation', function(annotation) {
-          console.log('deleted', annotation);
-        });
+        mountSmartToolsPlugin(anno);
 
         // anno.setDrawingTool('magnetic-cursor');
         anno.setDrawingTool('intelligent-scissors');
