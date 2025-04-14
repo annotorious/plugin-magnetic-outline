@@ -18,8 +18,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
-  "main": "./dist/annotorious-plugin-smart-tools.js",
-  "module": "./dist/annotorious-plugin-smart-tools.es.js",
+  "main": "./dist/plugin-magnetic-outline.js",
+  "module": "./dist/plugin-magnetic-outline.es.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
