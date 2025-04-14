@@ -28,6 +28,7 @@
   <body>
     <div id="content">    
       <img id="sample-image" src="640px-Hallstatt.jpg" />
+      <canvas id="canvasOutput"></canvas>
     </div>
 
     <script type="module">
@@ -52,7 +53,8 @@
           console.log('deleted', annotation);
         });
 
-        anno.setDrawingTool('magnetic-outline');
+        anno.setDrawingTool('magnetic-cursor');
+        // anno.setDrawingTool('intelligent-scissors');
       }
     </script>
   </body>

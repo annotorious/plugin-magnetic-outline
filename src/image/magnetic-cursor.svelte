@@ -9,6 +9,7 @@
 
   /** Props **/
   export let addEventListener: (type: string, fn: EventListener, capture?: boolean) => void;
+
   export let viewportScale: number;
   // svelte-ignore unused-export-let
   export let drawingMode: DrawingMode;
@@ -27,7 +28,7 @@
   let points: Point[] = [];
   let isClosable: boolean = false;
 
-  const CLOSE_DISTANCE = 20;
+  const CLOSE_DISTANCE = 8;
 
   const onPointerDown = (event: Event) => {
     const evt = event as PointerEvent;
@@ -115,22 +116,6 @@
 </script>
 
 <g bind:this={container}>
-  <!-- 
-  <g class="debug">
-    {#if Boolean(keypoints)}
-      {#each keypoints.listAll() as keypoint}
-        <circle 
-          stroke="black"
-          stroke-width={1}
-          fill="#fff"
-          cx={keypoint.x} 
-          cy={keypoint.y}
-          r={2} />
-      {/each}
-    {/if}
-  </g>
-  -->
-
   {#if (points.length > 0 && cursor)}
     {@const coords = (isClosable ? points : [...points, cursor]).map(xy => xy.join(',')).join(' ')}
     <polygon 
@@ -142,7 +127,14 @@
       points={coords} />
   {/if}
 
-  {#if cursor}
+  {#if (cursor && isClosable)}
+    <circle 
+      cx={points[0][0]}
+      cy={points[0][1]}
+      class="closable"
+      r={1.5 + cursorRadius}
+      /> 
+  {:else if cursor}
     <circle
       cx={cursor[0]}
       cy={cursor[1]}
@@ -158,7 +150,12 @@
     stroke-width: 0.75;
   }
 
+  circle.closable {
+    fill: #fff;
+    stroke: #000;
+  }
+
   :global(.a9s-annotationlayer) {
-    cursor: url('/crosshair.svg') 16 16, auto;
+    cursor: url('/assets/crosshair.svg') 16 16, auto;
   }
 </style>

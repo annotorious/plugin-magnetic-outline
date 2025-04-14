@@ -52,6 +52,7 @@
   "dependencies": {
     "@techstark/opencv-js": "^4.10.0-release.1",
     "flatbush": "^4.4.0",
+    "simplify-js": "^1.2.4",
     "throttle-debounce": "^5.0.2"
   }
 }

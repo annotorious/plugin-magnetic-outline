@@ -1,7 +1,8 @@
 import type { SvelteComponent } from 'svelte';
 import type { ImageAnnotator } from '@annotorious/annotorious';
 import type { OpenSeadragonAnnotator } from '@annotorious/openseadragon';
-import { MagneticOutlineTool as ImageOutlineTool } from '@/image';
+import { IntelligenceScissors as ImageScissors } from '@/image';
+import { MagneticCursor as ImageMagneticCursor } from '@/image';
 import { MagneticOutlineTool as OSDOutlineTool } from '@/openseadragon';
 
 export const mountPlugin = (
@@ -12,6 +13,7 @@ export const mountPlugin = (
     anno.registerDrawingTool('magnetic-outline', OSDOutlineTool as typeof SvelteComponent);
   } else {
     // Register Image version
-    anno.registerDrawingTool('magnetic-outline', ImageOutlineTool as typeof SvelteComponent);
+    anno.registerDrawingTool('magnetic-cursor', ImageMagneticCursor as typeof SvelteComponent);
+    anno.registerDrawingTool('intelligent-scissors', ImageScissors as typeof SvelteComponent);
   }
 }
