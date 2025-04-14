@@ -40,16 +40,21 @@
 
   let isClosable: boolean = false;
 
-  const onUpdateViewport = debounce(50, () => {
-    if (!tool || !canvas) return;
+  const initScissors = () => {
+    if (!canvas) return;
 
     src = cv.imread(canvas);
+    cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0)
 
     // @ts-expect-error
     tool = new cv.segmentation_IntelligentScissorsMB();
     tool.setEdgeFeatureCannyParameters(32, 100);
     tool.setGradientMagnitudeMaxLimit(200);
     tool.applyImage(src);
+  }
+
+  const onUpdateViewport = debounce(50, () => {
+    initScissors();
   });
 
   const onAnimationStart = () => {
@@ -83,6 +88,9 @@
     if (isClosable) {
       stopDrawing();
     } else {
+      // Viewport can't change while selecting is in progress
+      viewer.setMouseNavEnabled(false);
+
       // Lock current leg
       lockedPoints = [...lockedPoints, ...nextLeg];
 
@@ -136,6 +144,8 @@
     nextLeg = [];
     isClosable = false;
 
+    viewer.setMouseNavEnabled(true);
+
     dispatch('create', shape);
   }
 
@@ -158,12 +168,8 @@
     });
 
     lazy(() => {
-      // @ts-expect-error
-      tool = new cv.segmentation_IntelligentScissorsMB();
-      tool.setEdgeFeatureCannyParameters(32, 100);
-      tool.setGradientMagnitudeMaxLimit(200);
-
-      src = cv.imread(canvas);
+      console.log('init tool');
+      initScissors();
     });
 
     addEventListener('pointerdown', onPointerDown);
