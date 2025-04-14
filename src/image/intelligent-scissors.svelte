@@ -30,6 +30,8 @@
 
   $: points = [...lockedPoints, ...nextLeg];
 
+  $: cursorRadius = 3 / viewportScale;
+
   let isClosable: boolean = false;
 
   const onPointerDown = (event: Event) => {
@@ -138,4 +140,21 @@
       class="a9s-inner"
       points={coords} />
   {/if}
+
+  {#if (isClosable)}
+    <circle 
+      cx={points[0][0]}
+      cy={points[0][1]}
+      class="closable"
+      r={1.5 + cursorRadius}
+      />
+  {/if}
 </g>
+
+<style>
+  circle.closable {
+    fill: #fff;
+    stroke: #000;
+    stroke-width: 0.75;
+  }
+</style>
