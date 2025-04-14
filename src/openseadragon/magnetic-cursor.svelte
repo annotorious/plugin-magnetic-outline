@@ -123,7 +123,7 @@
 
     const canvas = siblings.find(n => n.nodeName.toUpperCase() === 'CANVAS') as HTMLCanvasElement;
     context = canvas.getContext('2d');
-    
+  
     addEventListener('pointerdown', onPointerDown);
     addEventListener('pointermove', onPointerMove);
     addEventListener('pointerup', onPointerUp);

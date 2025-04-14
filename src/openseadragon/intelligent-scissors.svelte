@@ -6,7 +6,7 @@
   import { boundsFromPoints, distance, ShapeType } from '@annotorious/annotorious';
   import type { DrawingMode, Polygon, Transform } from '@annotorious/annotorious';
   import type { Point } from '@/types';
-    import { getViewer } from '@/util';
+  import { getViewer } from '@/util';
 
   const dispatch = createEventDispatcher<{ create: Polygon }>();
 
@@ -50,8 +50,6 @@
     tool.setEdgeFeatureCannyParameters(32, 100);
     tool.setGradientMagnitudeMaxLimit(200);
     tool.applyImage(src);
-
-    console.log('viewport ready');
   });
 
   const onPointerDown = (event: Event) => {
@@ -165,6 +163,10 @@
     addEventListener('pointerup', onPointerUp);
    
     viewer.addHandler('update-viewport', onUpdateViewport);
+
+    return () => {
+      svg.classList.remove('intelligent-scissors');
+    }
   });
 </script>
 
