@@ -34,11 +34,13 @@
 
   const CLOSE_DISTANCE = 20;
 
+  let isClosable: boolean = false;
+
+  $: svg = container?.closest('.a9s-annotationlayer');
+
   $: points = [...lockedPoints, ...nextLeg];
 
   $: cursorRadius = 6 / viewportScale;
-
-  let isClosable: boolean = false;
 
   const initScissors = () => {
     if (!canvas) return;
@@ -55,12 +57,16 @@
 
   const onUpdateViewport = debounce(50, () => {
     initScissors();
+    svg?.classList.remove('busy');
   });
 
   const onAnimationStart = () => {
     // Invalidate image data and tool
     src = undefined;
     tool = undefined;
+    hasMap = false;
+
+    svg?.classList.add('busy');
   }
 
   const onPointerDown = (event: Event) => {
@@ -72,7 +78,7 @@
   }
 
   const onPointerUp = (event: Event) => {
-    if (!tool) return;
+    if (!tool || !lastPointerDown) return;
 
     const evt = event as PointerEvent;
     const { offsetX, offsetY } = evt;
@@ -88,15 +94,22 @@
     if (isClosable) {
       stopDrawing();
     } else {
+      svg?.classList.add('busy');
+
       // Viewport can't change while selecting is in progress
       viewer.setMouseNavEnabled(false);
 
-      // Lock current leg
-      lockedPoints = [...lockedPoints, ...nextLeg];
+      setTimeout(() => {
+        // Build new map (heavy operation)
+        tool.buildMap(new cv.Point(offsetX * devicePixelRatio, offsetY * devicePixelRatio));
+        
+        // Update state and remove busy cursor
+        hasMap = true;
+        svg?.classList.remove('busy');
 
-      // Build new map
-      tool.buildMap(new cv.Point(offsetX * devicePixelRatio, offsetY * devicePixelRatio));
-      hasMap = true;
+        // Lock current leg
+        lockedPoints = [...lockedPoints, ...nextLeg];
+      }, 50);
     }
   }
 
@@ -139,6 +152,8 @@
         points: [...points]
       }
     }
+
+    hasMap = false;
 
     lockedPoints = [];
     nextLeg = [];
@@ -193,12 +208,19 @@
       cx={points[0][0]}
       cy={points[0][1]}
       class="closable"
-      r={cursorRadius}
-      />
+      r={cursorRadius} />
   {/if}
 </g>
 
 <style>
+  :global(.a9s-annotationlayer.intelligent-scissors) {
+    cursor: crosshair;
+  }
+
+  :global(.a9s-annotationlayer.intelligent-scissors.busy) {
+    cursor: wait;
+  }
+
   circle.closable {
     fill: #fff;
     stroke: #000;
