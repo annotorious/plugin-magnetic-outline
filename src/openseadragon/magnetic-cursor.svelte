@@ -190,13 +190,13 @@
   }
 
   rect.a9s-handle {
-    cursor: url('/assets/crosshair.svg') 12 12, auto;
+    cursor: url('/assets/crosshair.svg') 16 16, auto;
   }
 
   :global(
     .a9s-annotationlayer.a9s-osd-drawinglayer.magnetic-cursor,
     .a9s-annotationlayer.a9s-osd-drawinglayer.magnetic-cursor .a9s-annotation
   ) {
-    cursor: url('/assets/crosshair.svg') 12 12, auto;
+    cursor: url('/assets/crosshair.svg') 16 16, auto;
   }
 </style>
