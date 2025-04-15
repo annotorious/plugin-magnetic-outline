@@ -187,6 +187,10 @@
 
       viewer.removeHandler('animation-start', onAnimationStart);
       viewer.removeHandler('update-viewport', onUpdateViewport);
+
+      // In case anno.cancelDrawing gets called while drawing
+      // is in progress
+      viewer.setMouseNavEnabled(true);
     }
   });
 </script>
