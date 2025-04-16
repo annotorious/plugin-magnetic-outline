@@ -16,25 +16,25 @@
   export let addEventListener: (type: string, fn: EventListener, capture?: boolean) => void;
 
   export let viewportScale: number;
+  export let transform: Transform;
   // svelte-ignore unused-export-let
   export let drawingMode: DrawingMode;
-  export let transform: Transform;
 
   let container: SVGGElement;
   let canvas: HTMLCanvasElement;
 
   let src: cv.Mat | undefined;
-  let tool: any;
+  let tool: any | undefined;
   let hasMap = false;
+
+  let lastPointerDown: { timeStamp: number, offsetX: number, offsetY: number };
 
   let lockedPoints: Point[] = [];
   let nextLeg: Point[] = [];
 
-  let lastPointerDown: { timeStamp: number, offsetX: number, offsetY: number };
+  let isClosable: boolean = false;
 
   const CLOSE_DISTANCE = 20;
-
-  let isClosable: boolean = false;
 
   $: svg = container?.closest('.a9s-annotationlayer');
 
@@ -61,7 +61,6 @@
   });
 
   const onAnimationStart = () => {
-    // Invalidate image data and tool
     src = undefined;
     tool = undefined;
     hasMap = false;
@@ -70,41 +69,42 @@
   }
 
   const onPointerDown = (event: Event) => {
-    const evt = event as PointerEvent;
-
     // Note that the event itself is ephemeral!
-    const { timeStamp, offsetX, offsetY } = evt;
+    const { timeStamp, offsetX, offsetY } = event as PointerEvent;
     lastPointerDown = { timeStamp, offsetX, offsetY };
   }
 
   const onPointerUp = (event: Event) => {
     if (!tool || !lastPointerDown) return;
 
-    const evt = event as PointerEvent;
-    const { offsetX, offsetY } = evt;
-    const timeDifference = evt.timeStamp - lastPointerDown.timeStamp;
+    const { offsetX, offsetY } = event as PointerEvent;
+    const timeDifference = event.timeStamp - lastPointerDown.timeStamp;
 
     const d = distance(
       [lastPointerDown.offsetX, lastPointerDown.offsetY], 
-      [evt.offsetX, evt.offsetY]);
+      [offsetX, offsetY]);
 
-    if (timeDifference > 300 || d > 15) // Not a single click - ignore
-      return;
+    // Drag not click - ignore
+    if (timeDifference > 300 || d > 15) return;
 
     if (isClosable) {
       stopDrawing();
     } else {
       svg?.classList.add('busy');
 
-      // Viewport can't change while selecting is in progress
+      // Don't allow viewport change while selecting, because
+      // this would complicate things significantly–not supported
+      // for now!
       viewer.setMouseNavEnabled(false);
 
       setTimeout(() => {
-        // Build new map (heavy operation)
+        // Build the map is a heavy operation! Allow the UI some time to
+        // act on the 'busy' class and change cursor, then build the map.
         tool.buildMap(new cv.Point(offsetX * devicePixelRatio, offsetY * devicePixelRatio));
         
         // Update state and remove busy cursor
         hasMap = true;
+        
         svg?.classList.remove('busy');
 
         // Lock current leg
