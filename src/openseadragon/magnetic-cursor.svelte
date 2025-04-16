@@ -13,17 +13,17 @@
   /** Props **/
   export let addEventListener: (type: string, fn: EventListener, capture?: boolean) => void;
   export let viewportScale: number;
+  export let transform: Transform;
   // svelte-ignore unused-export-let
   export let drawingMode: DrawingMode;
-  export let transform: Transform;
 
   let container: SVGGElement;
   let context: CanvasRenderingContext2D | null;
 
   let keypoints: KeypointIndex | undefined;
 
-  // Note: keypoints are viewport coordinate space (multiplied
-  // by devicePixelRatio), everything else is image coordinate space.
+  // Note: keypoints are canvas coordinate space (viewport multiplied
+  // by devicePixelRatio). Everything else is image coordinate space.
   let canvasCursor: Point | undefined;
   let imageCursor: Point | undefined;
 
@@ -47,20 +47,14 @@
     getKeypoints(data).then(kp => keypoints = kp);
   }
 
-  const onUpdateViewport = debounce(50, () => {
-    updateKeypoints();
-  });
-
-  const onAnimationStart = () => {
-    // Invalidate keypoints
-    keypoints = undefined;
-  }
+  const onUpdateViewport = debounce(50, () => updateKeypoints());
+  
+  // Invalidate keypoints
+  const onAnimationStart = () => { keypoints = undefined; }
 
   const onPointerDown = (event: Event) => {
-    const evt = event as PointerEvent;
-
     // Note that the event itself is ephemeral!
-    const { timeStamp, offsetX, offsetY } = evt;
+    const { timeStamp, offsetX, offsetY } = event as PointerEvent;;
     lastPointerDown = { timeStamp, offsetX, offsetY };
   }
 
@@ -68,10 +62,17 @@
     if (!keypoints) return;
 
     const { offsetX, offsetY } = evt as PointerEvent; 
-    const nearestKP = keypoints.neighbors(offsetX * devicePixelRatio, offsetY * devicePixelRatio, 1, 20);
+    const x = offsetX * devicePixelRatio;
+    const y = offsetY * devicePixelRatio;
 
-    canvasCursor = nearestKP.length > 0 ? nearestKP[0] : [offsetX * devicePixelRatio, offsetY * devicePixelRatio];
-    imageCursor = transform.elementToImage(canvasCursor[0] / devicePixelRatio, canvasCursor[1] / devicePixelRatio);
+    const nearestKP = keypoints.neighbors(x, y, 1, 20);
+
+    canvasCursor = nearestKP.length > 0 ? nearestKP[0] : [x, y];
+    
+    imageCursor = transform.elementToImage(
+      canvasCursor[0] / devicePixelRatio, 
+      canvasCursor[1] / devicePixelRatio
+    );
 
     if (points.length >  2) {
       const d = distance(imageCursor, points[0]) * viewportScale;
@@ -80,22 +81,21 @@
   }
 
   const onPointerUp = (event: Event) => {
-    const evt = event as PointerEvent;
-    const { offsetX, offsetY } = evt;
-    const timeDifference = evt.timeStamp - lastPointerDown.timeStamp;
+    const { offsetX, offsetY } = event as PointerEvent;
+    const timeDifference = event.timeStamp - lastPointerDown.timeStamp;
 
     const d = distance(
       [lastPointerDown.offsetX, lastPointerDown.offsetY], 
-      [evt.offsetX, evt.offsetY]);
+      [offsetX, offsetY]);
 
-    if (timeDifference > 300 || d > 15) // Not a single click - ignore
-      return;
+    // Drag not click - ignore
+    if (timeDifference > 300 || d > 15) return;
 
     if (isClosable) {
       stopDrawing();
     } else if (points.length === 0) {
       // Start drawing
-      const point = transform.elementToImage(evt.offsetX, evt.offsetY);
+      const point = transform.elementToImage(offsetX, offsetY);
       points.push(point);
 
       canvasCursor = [offsetX * devicePixelRatio, offsetY * devicePixelRatio];
