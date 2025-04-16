@@ -3,6 +3,15 @@ import type { KeypointIndex, Point } from '../types';
 import GetKeypointsWorker from './get-keypoints-worker.ts?worker';
 
 const createIndex = (points: Point[]) => {
+  if (points.length === 0) {
+    // Not great, but maintains the interface and prevents flatbush
+    // error for 0-size index.
+    return {
+      listAll: () => ([] as Point[]),
+      neighbors: (x: number, y: number, maxResults?: number, maxDistance?: number) => ([] as Point[])
+    }
+  };
+
   const flatbush = new Flatbush(points.length);
 
   for (const p of points)
