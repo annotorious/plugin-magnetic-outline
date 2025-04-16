@@ -3,7 +3,7 @@
   import cv from '@techstark/opencv-js';
   import simplify from 'simplify-js';
   import { debounce } from 'throttle-debounce';
-  import { boundsFromPoints, distance, ShapeType } from '@annotorious/annotorious';
+  import { boundsFromPoints, computeArea, distance, ShapeType } from '@annotorious/annotorious';
   import type { DrawingMode, Polygon, Transform } from '@annotorious/annotorious';
   import type { Point } from '@/types';
   import { getViewer, lazy } from '@/util';
@@ -144,6 +144,34 @@
     }
   }
 
+  const onDblClick = () => {    
+    // Require min 3 points and minimum polygon area.
+    // Note that the double click will have added a duplicate point!
+    const p = lockedPoints.slice(0, -1);
+    if (p.length < 3) return;
+
+    const shape: Polygon = {
+      type: ShapeType.POLYGON, 
+      geometry: {
+        bounds: boundsFromPoints(p),
+        points: p
+      }
+    }
+
+    const area = computeArea(shape);
+    if (area > 4) {
+      hasMap = false;
+
+      lockedPoints = [];
+      nextLeg = [];
+      isClosable = false;
+
+      viewer.setMouseNavEnabled(true);
+
+      dispatch('create', shape);
+    }
+  }
+
   const stopDrawing = () => {
     const shape: Polygon = {
       type: ShapeType.POLYGON, 
@@ -178,6 +206,7 @@
     addEventListener('pointerdown', onPointerDown);
     addEventListener('pointermove', onPointerMove);
     addEventListener('pointerup', onPointerUp);
+    addEventListener('dblclick', onDblClick, true);
 
     viewer.addHandler('animation-start', onAnimationStart);
     viewer.addHandler('update-viewport', onUpdateViewport);
