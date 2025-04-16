@@ -104,7 +104,7 @@
         
         // Update state and remove busy cursor
         hasMap = true;
-        
+
         svg?.classList.remove('busy');
 
         // Lock current leg
@@ -116,8 +116,7 @@
   const onPointerMove = (event: Event) => {
     if (!src || !tool || !hasMap) return;
 
-    const evt = event as PointerEvent;
-    const { offsetX, offsetY } = evt;
+    const { offsetX, offsetY } = event as PointerEvent;
 
     // Compute contour
     const contour = new cv.Mat();
