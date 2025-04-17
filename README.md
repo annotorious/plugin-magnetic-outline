@@ -16,6 +16,26 @@ A plugin for [Annotorious](https://annotorious.dev) that adds two smart polygon 
 npm install @annotorious/plugin-magnetic-outline
 ```
 
-```ts
+```
+import OpenSeadragon from 'openseadragon';
+import { createOSDAnnotator } from '@annotorious/openseadragon';
+import { mountPlugin } from '@annotorious/plugin-magnetic-outline';
 
+import '@annotorious/openseadragon/annotorious-openseadragon.css';
+
+// ...
+
+const viewer = OpenSeadragon({
+  // init OSD viewer normally  
+});
+
+const anno = createOSDAnnotator(viewer, {
+  // init Annotorious for OSD normally
+});
+
+// Will mount the plugin and register
+// both drawing tools.
+mountPlugin(anno);
+
+anno.setDrawingTool('magnetic-cursor'); // or 'intelligent-scissors'
 ```
