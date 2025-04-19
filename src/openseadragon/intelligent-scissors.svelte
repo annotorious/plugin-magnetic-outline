@@ -5,7 +5,7 @@
   import { debounce } from 'throttle-debounce';
   import { boundsFromPoints, computeArea, distance, ShapeType } from '@annotorious/annotorious';
   import type { DrawingMode, Polygon, Transform } from '@annotorious/annotorious';
-  import type { Point } from '@/types';
+  import type { MagneticOutlineOpts, Point } from '@/types';
   import { getViewer, lazy } from '@/util';
 
   const dispatch = createEventDispatcher<{ create: Polygon }>();
@@ -17,6 +17,7 @@
 
   export let viewportScale: number;
   export let transform: Transform;
+  export let opts: MagneticOutlineOpts;
   // svelte-ignore unused-export-let
   export let drawingMode: DrawingMode;
 
@@ -46,12 +47,19 @@
     if (!canvas) return;
 
     src = cv.imread(canvas);
-    cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0)
+    cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+
+    const edgeFeatureCannyLo = opts?.edgeFeatureCannyLo || 32;
+    const edgeFeatureCannyHi = opts?.edgeFeatureCannyHi || 100;  
+    const gradientMagnitudeMaxLimit = opts?.gradientMagnitudeMaxLimit || 200;
 
     // @ts-expect-error
     tool = new cv.segmentation_IntelligentScissorsMB();
-    tool.setEdgeFeatureCannyParameters(32, 100);
-    tool.setGradientMagnitudeMaxLimit(200);
+    tool.setEdgeFeatureCannyParameters(
+      edgeFeatureCannyLo, 
+      edgeFeatureCannyHi
+    );
+    tool.setGradientMagnitudeMaxLimit(gradientMagnitudeMaxLimit);
     tool.applyImage(src);
   }
 

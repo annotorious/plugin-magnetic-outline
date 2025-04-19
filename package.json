@@ -46,8 +46,8 @@
     "vite-plugin-dts": "^4.5.3"
   },
   "peerDependencies": {
-    "@annotorious/annotorious": "^3.3.3",
-    "@annotorious/openseadragon": "^3.3.3"
+    "@annotorious/annotorious": "^3.3.4",
+    "@annotorious/openseadragon": "^3.3.4"
   },
   "dependencies": {
     "@techstark/opencv-js": "^4.10.0-release.1",
