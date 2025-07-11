@@ -16,7 +16,7 @@ A plugin for [Annotorious](https://annotorious.dev) that adds two smart polygon 
 npm install @annotorious/plugin-magnetic-outline
 ```
 
-```
+```js
 import OpenSeadragon from 'openseadragon';
 import { createOSDAnnotator } from '@annotorious/openseadragon';
 import { mountPlugin } from '@annotorious/plugin-magnetic-outline';
