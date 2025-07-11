@@ -12,7 +12,7 @@ A plugin for [Annotorious](https://annotorious.dev) that adds two smart polygon 
 
 ## Usage
 
-```
+```sh
 npm install @annotorious/plugin-magnetic-outline
 ```
 
