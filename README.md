@@ -1,6 +1,8 @@
 # Annotorious Magnetic Outline Tools
 
-A plugin for [Annotorious](https://annotorious.dev) that adds two smart polygon drawing tools:
+An Annotorious plugin that adds computer-vision powered drawing tools:
+
+<img src="screenshot.gif" style="width:480px" alt="A screenshot of the Intelligent Scissors drawing tool." />
 
 - __Magnetic Cursor.__ Makes the mouse cursor snap to corner points of nearby objects detected
   in the image.
