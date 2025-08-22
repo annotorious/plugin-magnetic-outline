@@ -3,7 +3,7 @@
   import cv from '@techstark/opencv-js';
   import simplify from 'simplify-js';
   import { debounce } from 'throttle-debounce';
-  import { boundsFromPoints, computeArea, distance, ShapeType } from '@annotorious/annotorious';
+  import { boundsFromPoints, computeArea, distance, ShapeType, isTouch } from '@annotorious/annotorious';
   import type { DrawingMode, Polygon, Transform } from '@annotorious/annotorious';
   import type { MagneticOutlineOpts, Point } from '@/types';
   import { getViewer, lazy } from '@/util';
@@ -92,8 +92,8 @@
       [lastPointerDown.offsetX, lastPointerDown.offsetY], 
       [offsetX, offsetY]);
 
-    // Drag not click - ignore
-    if (timeDifference > 300 || d > 15) return;
+    // Drag not click - ignore, unless mobile
+    if (!isTouch && (timeDifference > 300 || d > 15)) return;
 
     if (isClosable) {
       stopDrawing();
@@ -105,6 +105,12 @@
       // for now!
       viewer.setMouseNavEnabled(false);
 
+      if (isTouch && lockedPoints.length === 0 && nextLeg.length === 0) {
+        // Lock starting point on mobile for visual feedback
+        const current = transform.elementToImage(offsetX, offsetY);
+        lockedPoints = [current];
+      }
+
       setTimeout(() => {
         // Build the map is a heavy operation! Allow the UI some time to
         // act on the 'busy' class and change cursor, then build the map.
@@ -113,9 +119,8 @@
         // Update state and remove busy cursor
         hasMap = true;
 
-        svg?.classList.remove('busy');
-
-        // Lock current leg
+        svg?.classList.remove('busy');      
+        
         lockedPoints = [...lockedPoints, ...nextLeg];
       }, 50);
     }
@@ -241,14 +246,36 @@
     <polygon 
       class="a9s-inner"
       points={coords} />
+
+    {#if (isTouch)}
+      <circle
+        cx={points[0][0]}
+        cy={points[0][1]}
+        class="touch-start"
+        r={cursorRadius} />
+    {/if}
   {/if}
 
   {#if (isClosable)}
-    <circle 
-      cx={points[0][0]}
-      cy={points[0][1]}
-      class="closable"
-      r={cursorRadius} />
+    {#if (isTouch)}
+      <circle
+        cx={points[0][0]}
+        cy={points[0][1]}
+        class="touch-closable-outer"
+        r={4 * cursorRadius} />
+
+      <circle
+        cx={points[0][0]}
+        cy={points[0][1]}
+        class="touch-closable-inner"
+        r={4 * cursorRadius} />
+    {:else}
+      <circle 
+        cx={points[0][0]}
+        cy={points[0][1]}
+        class="closable"
+        r={cursorRadius} />
+    {/if}
   {/if}
 </g>
 
@@ -261,7 +288,22 @@
     cursor: wait;
   }
 
-  circle.closable {
+  circle.touch-closable-outer {
+    fill: transparent;
+    stroke: #000;
+    stroke-width: 3.5;
+    vector-effect: non-scaling-stroke;
+  }
+
+  circle.touch-closable-inner {
+    fill: transparent;
+    stroke: #fff;
+    stroke-width: 2.5;
+    vector-effect: non-scaling-stroke;
+  }
+
+  circle.closable,
+  circle.touch-start {
     fill: #fff;
     stroke: #000;
     stroke-width: 0.75;
