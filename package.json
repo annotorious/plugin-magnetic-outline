@@ -1,6 +1,6 @@
 {
   "name": "@annotorious/plugin-magnetic-outline",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Computer-vision-powered drawing tools for Annotorious",
   "author": "Rainer Simon",
   "license": "BSD-3-Clause",
