@@ -152,7 +152,9 @@
     }
     contour.delete();
 
-    nextPath = simplify(contourPoints, 2, true)
+    const tolerance = opts?.polygonSimplifyTolerance || 2;
+
+    nextPath = simplify(contourPoints, tolerance, true)
       .map(xy => ([xy.x, xy.y]))
       .map(pt => transform.elementToImage(pt[0], pt[1]));
     
@@ -259,35 +261,35 @@
     <polygon 
       class="a9s-inner"
       points={coords} />
-
-    {#each lockedAnchors as anchor}
-      <circle
-        cx={anchor[0]}
-        cy={anchor[1]}
-        class="touch-start"
-        r={cursorRadius} />
-    {/each}
   {/if}
+
+  {#each lockedAnchors as anchor}
+    <circle
+      cx={anchor[0]}
+      cy={anchor[1]}
+      class="lock-anchor"
+      r={cursorRadius} />
+  {/each}
 
   {#if (isClosable)}
     {#if (isTouch)}
       <circle
         cx={points[0][0]}
         cy={points[0][1]}
-        class="touch-closable-outer"
+        class="touch-closable-ring-outer"
         r={4 * cursorRadius} />
 
       <circle
         cx={points[0][0]}
         cy={points[0][1]}
-        class="touch-closable-inner"
+        class="touch-closable-ring-inner"
         r={4 * cursorRadius} />
     {:else}
       <circle 
         cx={points[0][0]}
         cy={points[0][1]}
         class="closable"
-        r={cursorRadius} />
+        r={1.25 * cursorRadius} />
     {/if}
   {/if}
 </g>
@@ -301,24 +303,24 @@
     cursor: wait;
   }
 
-  circle.touch-closable-outer {
+  circle.lock-anchor,
+  circle.closable {
+    fill: #fff;
+    stroke: #000;
+    stroke-width: 0.75;
+  }
+
+  circle.touch-closable-ring-outer {
     fill: transparent;
     stroke: #000;
     stroke-width: 3.5;
     vector-effect: non-scaling-stroke;
   }
 
-  circle.touch-closable-inner {
+  circle.touch-closable-ring-inner {
     fill: transparent;
     stroke: #fff;
     stroke-width: 2.5;
     vector-effect: non-scaling-stroke;
-  }
-
-  circle.closable,
-  circle.touch-start {
-    fill: #fff;
-    stroke: #000;
-    stroke-width: 0.75;
   }
 </style>

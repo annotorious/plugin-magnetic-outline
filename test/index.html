@@ -62,7 +62,9 @@
 
         anno.on('createAnnotation', a => console.log(a));
 
-        mountSmartToolsPlugin(anno);
+        mountSmartToolsPlugin(anno, {
+          polygonSimplifyTolerance: 3
+        });
 
         // anno.setDrawingTool('magnetic-cursor');
         anno.setDrawingTool('intelligent-scissors');

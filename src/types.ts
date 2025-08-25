@@ -11,6 +11,9 @@ export interface MagneticOutlineOpts {
   // Default: 200
   gradientMagnitudeMaxLimit?: number;
 
+  // Default: 2
+  polygonSimplifyTolerance?: number;
+
 }
 
 export interface KeypointIndex {
