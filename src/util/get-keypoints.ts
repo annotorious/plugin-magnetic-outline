@@ -1,6 +1,5 @@
 import Flatbush from 'flatbush';
 import type { KeypointIndex, Point } from '../types';
-import GetKeypointsWorker from './get-keypoints-worker.ts?worker';
 
 const createIndex = (points: Point[]) => {
   if (points.length === 0) {
@@ -29,13 +28,15 @@ const createIndex = (points: Point[]) => {
   return { listAll, neighbors };
 }
 
-export const getKeypoints = (data: ImageData): Promise<KeypointIndex> => new Promise(resolve => {
-  const worker = new GetKeypointsWorker();
+export const getKeypoints = (data: ImageData): Promise<KeypointIndex> => 
+  new Promise(async resolve => {
+    const GetKeypointsWorker = await import('./get-keypoints-worker.ts?worker');
+    const worker = new GetKeypointsWorker.default();
 
-  worker.onmessage = (msg: MessageEvent<Point[]>) => {
-    const { data } = msg;
-    resolve(createIndex(data));
-  };
-  
-  worker.postMessage(data);
-});
+    worker.onmessage = (msg: MessageEvent<Point[]>) => {
+      const { data } = msg;
+      resolve(createIndex(data));
+    };
+    
+    worker.postMessage(data);
+  });
