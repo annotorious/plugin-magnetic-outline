@@ -30,8 +30,12 @@
 
   let lastPointerDown: { timeStamp: number, offsetX: number, offsetY: number };
 
-  let lockedPoints: Point[] = [];
-  let nextLeg: Point[] = [];
+  // Anchor points locked by the user
+  let lockedAnchors: Point[] = [];
+
+  // The full path (locked so far + pending next section)
+  let lockedPath: Point[] = [];
+  let nextPath: Point[] = [];
 
   let isClosable: boolean = false;
 
@@ -39,9 +43,9 @@
 
   $: svg = container?.closest('.a9s-annotationlayer');
 
-  $: points = [...lockedPoints, ...nextLeg];
+  $: points = [...lockedPath, ...nextPath];
 
-  $: cursorRadius = 6 / viewportScale;
+  $: cursorRadius = 4 / viewportScale;
 
   const initScissors = () => {
     if (!canvas) return;
@@ -105,11 +109,16 @@
       // for now!
       viewer.setMouseNavEnabled(false);
 
-      if (isTouch && lockedPoints.length === 0 && nextLeg.length === 0) {
+      const current = transform.elementToImage(offsetX, offsetY);
+      lockedAnchors = [...lockedAnchors, current];
+
+      /*
+      if (lockedPath.length === 0 && nextPath.length === 0) {
         // Lock starting point on mobile for visual feedback
         const current = transform.elementToImage(offsetX, offsetY);
-        lockedPoints = [current];
+        lockedPath = [current];
       }
+      */
 
       setTimeout(() => {
         // Build the map is a heavy operation! Allow the UI some time to
@@ -121,7 +130,7 @@
 
         svg?.classList.remove('busy');      
         
-        lockedPoints = [...lockedPoints, ...nextLeg];
+        lockedPath = [...lockedPath, ...nextPath];
       }, 50);
     }
   }
@@ -143,7 +152,7 @@
     }
     contour.delete();
 
-    nextLeg = simplify(contourPoints, 2, true)
+    nextPath = simplify(contourPoints, 2, true)
       .map(xy => ([xy.x, xy.y]))
       .map(pt => transform.elementToImage(pt[0], pt[1]));
     
@@ -159,7 +168,7 @@
   const onDblClick = () => {    
     // Require min 3 points and minimum polygon area.
     // Note that the double click will have added a duplicate point!
-    const p = lockedPoints.slice(0, -1);
+    const p = lockedPath.slice(0, -1);
     if (p.length < 3) return;
 
     const shape: Polygon = {
@@ -174,8 +183,10 @@
     if (area > 4) {
       hasMap = false;
 
-      lockedPoints = [];
-      nextLeg = [];
+      lockedAnchors = [];
+
+      lockedPath = [];
+      nextPath = [];
       isClosable = false;
 
       viewer.setMouseNavEnabled(true);
@@ -195,8 +206,10 @@
 
     hasMap = false;
 
-    lockedPoints = [];
-    nextLeg = [];
+    lockedAnchors = [];
+
+    lockedPath = [];
+    nextPath = [];
     isClosable = false;
 
     viewer.setMouseNavEnabled(true);
@@ -247,13 +260,13 @@
       class="a9s-inner"
       points={coords} />
 
-    {#if (isTouch)}
+    {#each lockedAnchors as anchor}
       <circle
-        cx={points[0][0]}
-        cy={points[0][1]}
+        cx={anchor[0]}
+        cy={anchor[1]}
         class="touch-start"
         r={cursorRadius} />
-    {/if}
+    {/each}
   {/if}
 
   {#if (isClosable)}
