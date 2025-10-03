@@ -30,7 +30,7 @@
       "import": "./dist/plugin-magnetic-outline.js",
       "require": "./dist/plugin-magnetic-outline.umd.cjs"
     },
-    "./plugin-magnetic-polyline.css": "./dist/style.css"
+    "./plugin-magnetic-outline.css": "./dist/style.css"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^3.1.2",
