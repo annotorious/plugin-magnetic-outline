@@ -2,18 +2,18 @@
   "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": false,
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "outDir": "./dist",
     "paths": {
       "@/*": ["./src/*"]
     },
     "resolveJsonModule": true,
+    "rootDir": "./src",
     "skipLibCheck": true,
     "sourceMap": true,
     "target": "ESNext",
