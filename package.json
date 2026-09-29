@@ -16,7 +16,8 @@
   "scripts": {
     "start": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:opencv": "node scripts/build-opencv/smoke-test.mjs"
   },
   "main": "./dist/plugin-magnetic-outline.umd.cjs",
   "module": "./dist/plugin-magnetic-outline.js",
