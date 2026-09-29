@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
-  import cv from '@techstark/opencv-js';
+  import cv from '@/util/opencv';
   import simplify from 'simplify-js';
   import { boundsFromPoints, distance, ShapeType } from '@annotorious/annotorious';
   import type { DrawingMode, Polygon, Transform } from '@annotorious/annotorious';
