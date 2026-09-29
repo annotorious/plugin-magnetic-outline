@@ -40,7 +40,8 @@ Then review and commit `vendor/opencv/`.
 ## Upgrading OpenCV or Emscripten
 
 Change `OPENCV_TAG` / `EMSDK_IMAGE` in `build.mjs` and rebuild. A tag change
-re-clones automatically. If upstream changed `modules/js/CMakeLists.txt`,
+re-clones automatically; a change of the image, the build options, the
+whitelist or `patch-cmake.sh` starts from a clean build tree. If upstream changed `modules/js/CMakeLists.txt`,
 `patch-cmake.sh` fails on purpose. Update its `sed` patterns.
 
 ## Gotchas

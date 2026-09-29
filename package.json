@@ -24,7 +24,8 @@
   "module": "./dist/plugin-magnetic-outline.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "vendor/opencv/LICENSE"
   ],
   "exports": {
     ".": {

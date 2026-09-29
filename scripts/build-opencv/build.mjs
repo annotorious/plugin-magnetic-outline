@@ -50,6 +50,7 @@ const build = out => {
     '-v', `${HERE}:/cfg:ro`,
     '-v', `${out}:/out`,
     '-e', `OPENCV_TAG=${OPENCV_TAG}`,
+    '-e', `BUILDER_IMAGE=${EMSDK_IMAGE}`,
     EMSDK_IMAGE,
     'bash', '/cfg/build-in-container.sh',
     ...BUILD_JS_ARGS
