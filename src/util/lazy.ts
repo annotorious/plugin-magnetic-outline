@@ -1,4 +1,4 @@
-import cv from '@techstark/opencv-js';
+import cv from './opencv';
 
 export const lazy = (fn: Function) => new Promise(resolve => {
   const isLoaded = !!cv?.Mat;
