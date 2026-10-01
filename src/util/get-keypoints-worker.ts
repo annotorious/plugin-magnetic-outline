@@ -1,4 +1,4 @@
-import cv from '@techstark/opencv-js';
+import cv from './opencv';
 import type { Point } from '../types';
 
 self.onmessage = function(e: MessageEvent<ImageData>) {

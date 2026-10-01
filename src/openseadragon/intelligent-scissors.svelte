@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
-  import cv from '@techstark/opencv-js';
+  import cv from '@/util/opencv';
   import simplify from 'simplify-js';
   import { debounce } from 'throttle-debounce';
   import { boundsFromPoints, computeArea, distance, ShapeType, isTouch } from '@annotorious/annotorious';

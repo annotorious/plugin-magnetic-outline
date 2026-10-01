@@ -1,0 +1,22 @@
+{
+  "opencvTag": "4.12.0",
+  "emsdkImage": "emscripten/emsdk:3.1.74",
+  "buildJsArgs": [
+    "--build_wasm",
+    "--config",
+    "/cfg/magnetic_outline.config.py",
+    "--cmake_option=-DBUILD_LIST=core,imgproc,js",
+    "--cmake_option=-DBUILD_TESTS=OFF",
+    "--cmake_option=-DBUILD_PERF_TESTS=OFF",
+    "--cmake_option=-DBUILD_EXAMPLES=OFF",
+    "--cmake_option=-DCMAKE_CXX_FLAGS_RELEASE='-Oz -DNDEBUG'",
+    "--cmake_option=-DCMAKE_C_FLAGS_RELEASE='-Oz -DNDEBUG'",
+    "--build_flags=-Oz -s EXPORT_ES6=1 -s ENVIRONMENT=web,worker,node"
+  ],
+  "whitelistSha256": "5867cc3df74938b893ef327328fa3a1994f81ad46b31dc5be774fc87a172fe81",
+  "opencvJs": {
+    "bytes": 1318727,
+    "sha256": "1f357765057864b9e70587c12e0afb94990cfdfa5b4af00f6c7d233c057986b5"
+  },
+  "builtAt": "2026-10-01T14:09:48.955Z"
+}
