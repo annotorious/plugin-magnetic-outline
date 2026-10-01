@@ -15,8 +15,8 @@
   ],
   "whitelistSha256": "5867cc3df74938b893ef327328fa3a1994f81ad46b31dc5be774fc87a172fe81",
   "opencvJs": {
-    "bytes": 1318767,
-    "sha256": "424b3b547d7377dd272697b35e832ce3c04ace4097bd6b594a3f385a084d9d6d"
+    "bytes": 1318727,
+    "sha256": "1f357765057864b9e70587c12e0afb94990cfdfa5b4af00f6c7d233c057986b5"
   },
-  "builtAt": "2026-09-29T03:29:18.905Z"
+  "builtAt": "2026-10-01T14:09:48.955Z"
 }
