@@ -1,11 +1,13 @@
 import cv from './opencv';
+import { cvCall } from './cv-call';
 import type { Point } from '../types';
 
 self.onmessage = function(e: MessageEvent<ImageData>) {
   const { data } = e;
 
   lazy(() => {
-    const keypoints = computeKeypoints(data);
+    // Always reply, so the caller's promise never stays pending
+    const keypoints = cvCall(() => computeKeypoints(data)) || [];
     self.postMessage(keypoints);
   });
 };
