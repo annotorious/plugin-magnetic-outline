@@ -6,7 +6,7 @@
   import { boundsFromPoints, computeArea, distance, ShapeType, isTouch } from '@annotorious/annotorious';
   import type { DrawingMode, Polygon, Transform } from '@annotorious/annotorious';
   import type { MagneticOutlineOpts, Point } from '@/types';
-  import { getViewer, lazy } from '@/util';
+  import { cvCall, getViewer, lazy } from '@/util';
 
   const dispatch = createEventDispatcher<{ create: Polygon }>();
 
@@ -50,24 +50,38 @@
   const initScissors = () => {
     if (!canvas) return;
 
-    src = cv.imread(canvas);
-    cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+    // A new tool has no map yet
+    hasMap = false;
 
-    const edgeFeatureCannyLo = opts?.edgeFeatureCannyLo || 32;
-    const edgeFeatureCannyHi = opts?.edgeFeatureCannyHi || 100;  
-    const gradientMagnitudeMaxLimit = opts?.gradientMagnitudeMaxLimit || 200;
+    cvCall(() => {
+      src = cv.imread(canvas);
+      cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
 
-    // @ts-expect-error
-    tool = new cv.segmentation_IntelligentScissorsMB();
-    tool.setEdgeFeatureCannyParameters(
-      edgeFeatureCannyLo, 
-      edgeFeatureCannyHi
-    );
-    tool.setGradientMagnitudeMaxLimit(gradientMagnitudeMaxLimit);
-    tool.applyImage(src);
+      const edgeFeatureCannyLo = opts?.edgeFeatureCannyLo || 32;
+      const edgeFeatureCannyHi = opts?.edgeFeatureCannyHi || 100;
+      const gradientMagnitudeMaxLimit = opts?.gradientMagnitudeMaxLimit || 200;
+
+      // @ts-expect-error
+      tool = new cv.segmentation_IntelligentScissorsMB();
+      tool.setEdgeFeatureCannyParameters(
+        edgeFeatureCannyLo,
+        edgeFeatureCannyHi
+      );
+      tool.setGradientMagnitudeMaxLimit(gradientMagnitudeMaxLimit);
+      tool.applyImage(src);
+    }, () => {
+      src = undefined;
+      tool = undefined;
+      cancelDrawing();
+    });
   }
 
   const onUpdateViewport = debounce(50, () => {
+    // OSD also fires update-viewport on redraws without viewport change
+    // (e.g. tiles loading). Don't replace the tool while a shape is in
+    // progress - that would discard the map built at the last anchor.
+    if (lockedAnchors.length > 0 && tool) return;
+
     initScissors();
     svg?.classList.remove('busy');
   });
@@ -120,16 +134,31 @@
       }
       */
 
+      const currentTool = tool;
+
       setTimeout(() => {
+        svg?.classList.remove('busy');
+
+        // Tool was discarded or replaced in the meantime
+        if (tool !== currentTool) {
+          dropLastAnchor();
+          return;
+        }
+
         // Build the map is a heavy operation! Allow the UI some time to
         // act on the 'busy' class and change cursor, then build the map.
-        tool.buildMap(new cv.Point(offsetX * devicePixelRatio, offsetY * devicePixelRatio));
-        
-        // Update state and remove busy cursor
+        const built = cvCall(() => {
+          tool.buildMap(new cv.Point(offsetX * devicePixelRatio, offsetY * devicePixelRatio));
+          return true;
+        });
+
+        if (!built) {
+          dropLastAnchor();
+          return;
+        }
+
         hasMap = true;
 
-        svg?.classList.remove('busy');      
-        
         lockedPath = [...lockedPath, ...nextPath];
       }, 50);
     }
@@ -141,16 +170,30 @@
     const { offsetX, offsetY } = event as PointerEvent;
 
     // Compute contour
-    const contour = new cv.Mat();
-    tool.getContour(new cv.Point(offsetX * devicePixelRatio, offsetY * devicePixelRatio), contour);
+    const contourPoints = cvCall(() => {
+      const contour = new cv.Mat();
 
-    let contourPoints: {x: number, y: number}[] = [];
-    for (let i = 0; i < contour.rows; i++) {
-      const x = contour.data32S[i * 2] / devicePixelRatio;
-      const y = contour.data32S[i * 2 + 1] / devicePixelRatio;
-      contourPoints.push({ x, y });
-    }
-    contour.delete();
+      try {
+        tool.getContour(new cv.Point(offsetX * devicePixelRatio, offsetY * devicePixelRatio), contour);
+
+        const pts: {x: number, y: number}[] = [];
+        for (let i = 0; i < contour.rows; i++) {
+          const x = contour.data32S[i * 2] / devicePixelRatio;
+          const y = contour.data32S[i * 2 + 1] / devicePixelRatio;
+          pts.push({ x, y });
+        }
+
+        return pts;
+      } finally {
+        contour.delete();
+      }
+    }, () => {
+      // Drop the preview only, keep the locked path
+      nextPath = [];
+      isClosable = false;
+    });
+
+    if (!contourPoints) return;
 
     const tolerance = opts?.polygonSimplifyTolerance || 2;
 
@@ -217,6 +260,34 @@
     viewer.setMouseNavEnabled(true);
 
     dispatch('create', shape);
+  }
+
+  const cancelDrawing = () => {
+    hasMap = false;
+
+    lockedAnchors = [];
+
+    lockedPath = [];
+    nextPath = [];
+    isClosable = false;
+
+    svg?.classList.remove('busy');
+
+    viewer.setMouseNavEnabled(true);
+  }
+
+  // Removes the anchor whose map could not be built. The user can
+  // click again to place a new one.
+  const dropLastAnchor = () => {
+    hasMap = false;
+
+    lockedAnchors = lockedAnchors.slice(0, -1);
+
+    nextPath = [];
+    isClosable = false;
+
+    if (lockedAnchors.length === 0)
+      cancelDrawing();
   }
 
   onMount(() => {

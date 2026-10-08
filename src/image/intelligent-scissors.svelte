@@ -5,6 +5,7 @@
   import { boundsFromPoints, distance, ShapeType } from '@annotorious/annotorious';
   import type { DrawingMode, Polygon, Transform } from '@annotorious/annotorious';
   import type { Point } from '@/types';
+  import { cvCall } from '@/util';
 
   const dispatch = createEventDispatcher<{ create: Polygon }>();
 
@@ -43,12 +44,26 @@
       const evt = event as PointerEvent;
       const { offsetX, offsetY } = evt;
 
+      const previousLocked = lockedPoints;
+
       // Lock current leg
       lockedPoints = [...lockedPoints, ...nextLeg];
 
       // Build new map
-      tool.buildMap(new cv.Point(offsetX, offsetY));
-      hasMap = true;
+      const built = cvCall(() => {
+        tool.buildMap(new cv.Point(offsetX, offsetY));
+        return true;
+      });
+
+      if (built) {
+        hasMap = true;
+      } else {
+        // Discard this click - the user can click again
+        lockedPoints = previousLocked;
+        nextLeg = [];
+        hasMap = false;
+        isClosable = false;
+      }
     }
   }
 
@@ -59,16 +74,30 @@
     const { offsetX: x, offsetY: y } = evt;
 
     // Compute contour
-    const contour = new cv.Mat();
-    tool.getContour(new cv.Point(x, y), contour);
+    const contourPoints = cvCall(() => {
+      const contour = new cv.Mat();
 
-    let contourPoints: {x: number, y: number}[] = [];
-    for (let i = 0; i < contour.rows; i++) {
-      const x = contour.data32S[i * 2];
-      const y = contour.data32S[i * 2 + 1];
-      contourPoints.push({ x, y });
-    }
-    contour.delete();
+      try {
+        tool.getContour(new cv.Point(x, y), contour);
+
+        const pts: {x: number, y: number}[] = [];
+        for (let i = 0; i < contour.rows; i++) {
+          const x = contour.data32S[i * 2];
+          const y = contour.data32S[i * 2 + 1];
+          pts.push({ x, y });
+        }
+
+        return pts;
+      } finally {
+        contour.delete();
+      }
+    }, () => {
+      // Drop the preview only, keep the locked path
+      nextLeg = [];
+      isClosable = false;
+    });
+
+    if (!contourPoints) return;
 
     nextLeg = simplify(contourPoints, 0.8, true).map(xy => ([xy.x, xy.y])) as Point[];
 
@@ -114,7 +143,7 @@
         cv.onRuntimeInitialized = () => resolve(fn());
     });
 
-    lazy(() => {
+    lazy(() => cvCall(() => {
       src = cv.imread(image);
 
       // @ts-expect-error
@@ -122,7 +151,10 @@
       tool.setEdgeFeatureCannyParameters(32, 100);
       tool.setGradientMagnitudeMaxLimit(200);
       tool.applyImage(src);
-    });
+    }, () => {
+      src = undefined;
+      tool = undefined;
+    }));
 
     addEventListener('pointerdown', onPointerDown);
     addEventListener('pointermove', onPointerMove);
