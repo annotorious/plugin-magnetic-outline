@@ -61,7 +61,6 @@
       const edgeFeatureCannyHi = opts?.edgeFeatureCannyHi || 100;
       const gradientMagnitudeMaxLimit = opts?.gradientMagnitudeMaxLimit || 200;
 
-      // @ts-expect-error
       tool = new cv.segmentation_IntelligentScissorsMB();
       tool.setEdgeFeatureCannyParameters(
         edgeFeatureCannyLo,
